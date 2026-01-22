@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Quote() {
 
+  const backendurl = import.meta.env.VITE_BACKEND_URL
+
   const [editMode, setEditMode] = useState(false);
 
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -63,7 +65,7 @@ export default function Quote() {
       const formData = new FormData();
       formData.append("quote", file);
 
-      const res = await fetch("http://127.0.0.1:5000/analyze", {
+      const res = await fetch(backendurl+"/analyze", {
         method: "POST",
         body: formData,
       });
