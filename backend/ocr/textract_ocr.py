@@ -57,14 +57,16 @@ from config.aws_config import (
     AWS_REGION,
 )
 
+print(AWS_ACCESS_KEY_ID)
+
 
 VIN_REGEX = r"\b[A-HJ-NPR-Z0-9]{17}\b"
 
 textract = boto3.client(
     "textract",
-    aws_access_key_id=AWS_ACCESS_KEY,
-    aws_secret_access_key=AWS_SECRET_KEY,
-    region_name=REGION
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_REGION
 )
 
 def extract_quote(file):

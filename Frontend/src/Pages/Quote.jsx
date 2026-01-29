@@ -65,7 +65,7 @@ export default function Quote() {
       const formData = new FormData();
       formData.append("quote", file);
 
-      const res = await fetch(backendurl+"/analyze", {
+      const res = await fetch(backendurl + "/analyze", {
         method: "POST",
         body: formData,
       });
@@ -75,6 +75,8 @@ export default function Quote() {
       }
 
       const text = await res.text();
+      console.log(text);
+
 
       let data;
       try {
@@ -157,14 +159,27 @@ export default function Quote() {
     )
   );
 
-  const incentiveCheckboxes = allStackableIncentives.map(label => ({
-    id: label.toLowerCase().replace(/\s+/g, "_"),
-    label
-  }));
+  const incentiveCheckboxes = [
+    ...allStackableIncentives
+      .map(label =>
+        label.replace(/\bBMW\b/gi, "").replace(/\s{2,}/g, " ").trim()
+      )
+      .filter(label => label.length > 0)
+      .map(label => ({
+        id: label.toLowerCase().replace(/\s+/g, "_"),
+        label
+      })),
+
+    {
+      id: "none_of_the_above",
+      label: "None of the above"
+    }
+  ];
 
   const selectedLabels = incentiveCheckboxes
     .filter(item => selectedStatus[item.id])
     .map(item => item.label);
+
 
   return (
     <div className="relative flex flex-col bg-[#fafafa] w-full max-w-[50rem] h-screen">
@@ -285,7 +300,7 @@ export default function Quote() {
               Please select all that apply to you.
             </p>
 
-            <div className="space-y-3 mb-4">
+            <div className="space-y-3 mb-1">
               {incentiveCheckboxes.length > 0 && (
                 <div className="bg-white shadow rounded-xl p-6 max-w-2xl mb-10">
                   <h3 className="text-[0.875rem] font-semibold mb-4">
@@ -302,12 +317,24 @@ export default function Quote() {
                           type="checkbox"
                           checked={selectedStatus[item.id] || false}
                           disabled={step >= 3}
-                          onChange={(e) =>
-                            setSelectedStatus(prev => ({
-                              ...prev,
-                              [item.id]: e.target.checked
-                            }))
-                          }
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+
+                            setSelectedStatus(prev => {
+                              // If "None of the above" is selected
+                              if (item.id === "none_of_the_above") {
+                                return checked ? { none_of_the_above: true } : {};
+                              }
+
+                              // If any other incentive is selected
+                              return {
+                                ...prev,
+                                none_of_the_above: false, // remove "none of the above"
+                                [item.id]: checked
+                              };
+                            });
+                          }}
+
                           className={`w-4 h-4 ${step >= 3 ? "cursor-not-allowed opacity-60" : "cursor-pointer"
                             }`}
                         />
@@ -346,7 +373,7 @@ export default function Quote() {
             </div>
           </div>
         )}
-        
+
         {/* STEP 2 — ANALYSIS */}
         {step >= 3 && (
           <>
@@ -371,7 +398,7 @@ export default function Quote() {
             </div>
 
             <div className="flex items-start gap-3 mb-6 max-w-lg">
-              <div className="w-14 md:w-8 lg:w-8 2xl:w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-[0.875rem]">YO</div>
+              <div className="w-14 md:w-8 lg:w-8 2xl:w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-[0.875rem] flex-shrink-0 leading-none">YO</div>
               <p className="text-[0.875rem]">
                 However, there is still a room for further negotiation, You can save up to{" "}
                 <span className="text-green-600 font-bold">$499.</span>
